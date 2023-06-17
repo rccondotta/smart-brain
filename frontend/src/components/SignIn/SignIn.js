@@ -1,4 +1,5 @@
 import React from "react";
+import "./SignIn.css";
 
 class SignIn extends React.Component {
 
@@ -18,6 +19,10 @@ class SignIn extends React.Component {
     this.setState({signInPassword: event.target.value});
   }
 
+  saveAuthTokenInSessions = (token) => {
+    window.sessionStorage.setItem('token', token);
+  }
+
   onSubmitSignIn = () => {
     fetch('http://localhost:3000/signin', {
       method: 'post',
@@ -28,16 +33,18 @@ class SignIn extends React.Component {
       })
     })
       .then(response => response.json())
-      .then(user => {
-        if(user.id){ // does the user exist? Did we receive a user with a property of id?
-          this.props.loadUser(user);
+      .then(data => {
+        if (data && data.success === "true") {
+          this.saveAuthTokenInSessions(data.token)
+          this.props.loadUser(data.user)
           this.props.onRouteChange('home');
         }
       })
+      .catch(console.log)
   }
 
   render() {
-    const { onRouteChange } = this.props.onRouteChange;
+    const { onRouteChange } = this.props;
 
     return (
       <article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
@@ -48,7 +55,7 @@ class SignIn extends React.Component {
               <div className="mt3">
                 <label className="db fw6 lh-copy f6" htmlFor="email-address">Email</label>
                 <input
-                  className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
+                  className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100 hover-black"
                   type="email"
                   name="email-address"
                   id="email-address"
@@ -58,7 +65,7 @@ class SignIn extends React.Component {
               <div className="mv3">
                 <label className="db fw6 lh-copy f6" htmlFor="password">Password</label>
                 <input
-                  className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
+                  className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100 hover-black"
                   type="password"
                   name="password"
                   id="password"
